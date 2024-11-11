@@ -2,26 +2,34 @@ package main
 
 import (
 	"fmt"
-	"time"
 )
 
 func main() {
-	resultFactorial := make(chan int)
+	chanFactorial := make(chan int)
 	intChan := make(chan int)
-
-	go factorial(5, resultFactorial)
-
-	fmt.Println(<-resultFactorial)
-
+	iCh := make(chan int, 3)
+	//1
+	iCh <- 10
+	iCh <- 3
+	iCh <- 24
+	fmt.Println(<-iCh)
+	fmt.Println(<-iCh)
+	fmt.Println(<-iCh)
+	//2
+	go factorial(5, chanFactorial)
+	resultFactorial := <-chanFactorial
+	fmt.Println(resultFactorial)
+	//3
 	go func() {
 		fmt.Println("5 in in intChan")
 		intChan <- 5
 	}()
+
 	fmt.Println(<-intChan)
 	fmt.Println("finish")
 }
 
-func factorial(n int, ch chan int) {
+func factorial(n int, ch chan<- int) {
 	if n < 1 {
 		fmt.Println("Invalid input number")
 		return
@@ -32,5 +40,4 @@ func factorial(n int, ch chan int) {
 	}
 
 	ch <- result
-	time.Sleep(100 * time.Millisecond)
 }
